@@ -7,40 +7,107 @@
 </head>
 <body>
     <h1>Task Manager</h1>
-    <input type="text" id="taskInput" placeholder="Enter a task">
+    <input type="text" id="taskName" placeholder="Task Name">
+    <input type="text" id="taskDescription" placeholder="Task Description">
+    <input type="date" id="taskDueDate">
     <button id="addTaskBtn">Add Task</button>
-    <ul id="taskList"></ul>
+    
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Task Name</th>
+                <th>Description</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="taskList"></tbody>
+    </table>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const taskInput = document.getElementById("taskInput");
-            const addTaskBtn = document.getElementById("addTaskBtn");
-            const taskList = document.getElementById("taskList");
+        class Task {
+            constructor(name, description, dueDate) {
+                this.name = name;
+                this.description = description;
+                this.dueDate = dueDate;
+                this.status = "Pending";
+            }
+        }
 
-            function loadTasks() {
-                const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-                taskList.innerHTML = "";
-                tasks.forEach(task => {
-                    const li = document.createElement("li");
-                    li.textContent = task;
-                    taskList.appendChild(li);
+        class TaskManager {
+            constructor() {
+                this.taskNameInput = document.getElementById("taskName");
+                this.taskDescriptionInput = document.getElementById("taskDescription");
+                this.taskDueDateInput = document.getElementById("taskDueDate");
+                this.addTaskBtn = document.getElementById("addTaskBtn");
+                this.taskList = document.getElementById("taskList");
+                this.tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+                this.addTaskBtn.addEventListener("click", () => this.addTask());
+                this.loadTasks();
+            }
+
+            loadTasks() {
+                this.taskList.innerHTML = "";
+                this.tasks.forEach((taskData, index) => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${taskData.name}</td>
+                        <td>${taskData.description}</td>
+                        <td>${taskData.dueDate}</td>
+                        <td>${taskData.status}</td>
+                        <td>
+                            <button onclick="taskManager.editTask(${index})">Edit</button>
+                            <button onclick="taskManager.changeStatus(${index})">Toggle Status</button>
+                            <button onclick="taskManager.deleteTask(${index})">Delete</button>
+                        </td>
+                    `;
+                    this.taskList.appendChild(row);
                 });
             }
 
-            function addTask() {
-                const task = taskInput.value.trim();
-                if (task) {
-                    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-                    tasks.push(task);
-                    localStorage.setItem("tasks", JSON.stringify(tasks));
-                    taskInput.value = "";
-                    loadTasks();
+            addTask() {
+                const name = this.taskNameInput.value.trim();
+                const description = this.taskDescriptionInput.value.trim();
+                const dueDate = this.taskDueDateInput.value;
+                if (name && description && dueDate) {
+                    const newTask = new Task(name, description, dueDate);
+                    this.tasks.push(newTask);
+                    localStorage.setItem("tasks", JSON.stringify(this.tasks));
+                    this.taskNameInput.value = "";
+                    this.taskDescriptionInput.value = "";
+                    this.taskDueDateInput.value = "";
+                    this.loadTasks();
                 }
             }
 
-            addTaskBtn.addEventListener("click", addTask);
-            loadTasks();
-        });
+            editTask(index) {
+                const task = this.tasks[index];
+                const newName = prompt("Edit Task Name:", task.name);
+                const newDescription = prompt("Edit Task Description:", task.description);
+                const newDueDate = prompt("Edit Due Date (YYYY-MM-DD):", task.dueDate);
+                
+                if (newName && newDescription && newDueDate) {
+                    this.tasks[index] = new Task(newName, newDescription, newDueDate);
+                    localStorage.setItem("tasks", JSON.stringify(this.tasks));
+                    this.loadTasks();
+                }
+            }
+
+            changeStatus(index) {
+                this.tasks[index].status = this.tasks[index].status === "Pending" ? "Completed" : "Pending";
+                localStorage.setItem("tasks", JSON.stringify(this.tasks));
+                this.loadTasks();
+            }
+
+            deleteTask(index) {
+                this.tasks.splice(index, 1);
+                localStorage.setItem("tasks", JSON.stringify(this.tasks));
+                this.loadTasks();
+            }
+        }
+
+        const taskManager = new TaskManager();
     </script>
 </body>
 </html>
