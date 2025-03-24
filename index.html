@@ -52,12 +52,12 @@
                 this.tasks.forEach((taskData, index) => {
                     const row = document.createElement("tr");
                     row.innerHTML = `
-                        <td>${taskData.name}</td>
-                        <td>${taskData.description}</td>
-                        <td>${taskData.dueDate}</td>
+                        <td contenteditable="false">${taskData.name}</td>
+                        <td contenteditable="false">${taskData.description}</td>
+                        <td><input type="date" value="${taskData.dueDate}" disabled></td>
                         <td>${taskData.status}</td>
                         <td>
-                            <button onclick="taskManager.editTask(${index})">Edit</button>
+                            <button onclick="taskManager.toggleEditTask(${index}, this)">Edit</button>
                             <button onclick="taskManager.changeStatus(${index})">Toggle Status</button>
                             <button onclick="taskManager.deleteTask(${index})">Delete</button>
                         </td>
@@ -81,16 +81,25 @@
                 }
             }
 
-            editTask(index) {
-                const task = this.tasks[index];
-                const newName = prompt("Edit Task Name:", task.name);
-                const newDescription = prompt("Edit Task Description:", task.description);
-                const newDueDate = prompt("Edit Due Date (YYYY-MM-DD):", task.dueDate);
+            toggleEditTask(index, button) {
+                const row = button.closest("tr");
+                const cells = row.querySelectorAll("td");
+                const inputDate = row.querySelector("input[type='date']");
                 
-                if (newName && newDescription && newDueDate) {
-                    this.tasks[index] = new Task(newName, newDescription, newDueDate);
+                if (button.textContent === "Edit") {
+                    cells[0].setAttribute("contenteditable", "true");
+                    cells[1].setAttribute("contenteditable", "true");
+                    inputDate.removeAttribute("disabled");
+                    button.textContent = "Save";
+                } else {
+                    this.tasks[index].name = cells[0].textContent.trim();
+                    this.tasks[index].description = cells[1].textContent.trim();
+                    this.tasks[index].dueDate = inputDate.value;
                     localStorage.setItem("tasks", JSON.stringify(this.tasks));
-                    this.loadTasks();
+                    cells[0].setAttribute("contenteditable", "false");
+                    cells[1].setAttribute("contenteditable", "false");
+                    inputDate.setAttribute("disabled", "true");
+                    button.textContent = "Edit";
                 }
             }
 
