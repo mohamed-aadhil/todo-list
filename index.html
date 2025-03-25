@@ -4,119 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Manager</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Task Manager</h1>
-    <input type="text" id="taskName" placeholder="Task Name">
-    <input type="text" id="taskDescription" placeholder="Task Description">
-    <input type="date" id="taskDueDate">
-    <button id="addTaskBtn">Add Task</button>
-    
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Task Name</th>
-                <th>Description</th>
-                <th>Due Date</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody id="taskList"></tbody>
-    </table>
-
-    <script>
-        class Task {
-            constructor(name, description, dueDate) {
-                this.name = name;
-                this.description = description;
-                this.dueDate = dueDate;
-                this.status = "Pending";
-            }
-        }
-
-        class TaskManager {
-            constructor() {
-                this.taskNameInput = document.getElementById("taskName");
-                this.taskDescriptionInput = document.getElementById("taskDescription");
-                this.taskDueDateInput = document.getElementById("taskDueDate");
-                this.addTaskBtn = document.getElementById("addTaskBtn");
-                this.taskList = document.getElementById("taskList");
-                this.tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-                this.addTaskBtn.addEventListener("click", () => this.addTask());
-                this.loadTasks();
-            }
-
-            loadTasks() {
-                this.taskList.innerHTML = "";
-                this.tasks.forEach((taskData, index) => {
-                    const row = document.createElement("tr");
-                    row.innerHTML = `
-                        <td contenteditable="false">${taskData.name}</td>
-                        <td contenteditable="false">${taskData.description}</td>
-                        <td><input type="date" value="${taskData.dueDate}" disabled></td>
-                        <td>${taskData.status}</td>
-                        <td>
-                            <button onclick="taskManager.toggleEditTask(${index}, this)">Edit</button>
-                            <button onclick="taskManager.changeStatus(${index})">Toggle Status</button>
-                            <button onclick="taskManager.deleteTask(${index})">Delete</button>
-                        </td>
-                    `;
-                    this.taskList.appendChild(row);
-                });
-            }
-
-            addTask() {
-                const name = this.taskNameInput.value.trim();
-                const description = this.taskDescriptionInput.value.trim();
-                const dueDate = this.taskDueDateInput.value;
-                if (name && description && dueDate) {
-                    const newTask = new Task(name, description, dueDate);
-                    this.tasks.push(newTask);
-                    localStorage.setItem("tasks", JSON.stringify(this.tasks));
-                    this.taskNameInput.value = "";
-                    this.taskDescriptionInput.value = "";
-                    this.taskDueDateInput.value = "";
-                    this.loadTasks();
-                }
-            }
-
-            toggleEditTask(index, button) {
-                const row = button.closest("tr");
-                const cells = row.querySelectorAll("td");
-                const inputDate = row.querySelector("input[type='date']");
-                
-                if (button.textContent === "Edit") {
-                    cells[0].setAttribute("contenteditable", "true");
-                    cells[1].setAttribute("contenteditable", "true");
-                    inputDate.removeAttribute("disabled");
-                    button.textContent = "Save";
-                } else {
-                    this.tasks[index].name = cells[0].textContent.trim();
-                    this.tasks[index].description = cells[1].textContent.trim();
-                    this.tasks[index].dueDate = inputDate.value;
-                    localStorage.setItem("tasks", JSON.stringify(this.tasks));
-                    cells[0].setAttribute("contenteditable", "false");
-                    cells[1].setAttribute("contenteditable", "false");
-                    inputDate.setAttribute("disabled", "true");
-                    button.textContent = "Edit";
-                }
-            }
-
-            changeStatus(index) {
-                this.tasks[index].status = this.tasks[index].status === "Pending" ? "Completed" : "Pending";
-                localStorage.setItem("tasks", JSON.stringify(this.tasks));
-                this.loadTasks();
-            }
-
-            deleteTask(index) {
-                this.tasks.splice(index, 1);
-                localStorage.setItem("tasks", JSON.stringify(this.tasks));
-                this.loadTasks();
-            }
-        }
-
-        const taskManager = new TaskManager();
-    </script>
+    <div class="container">
+        <h1 style="text-align: center;">Task Manager</h1>
+        <div class="form-group">
+            <input type="text" id="taskName" placeholder="Task Name">
+            <input type="text" id="taskDescription" placeholder="Task Description">
+            <input type="date" id="taskDueDate">
+            <button id="addTaskBtn">Add Task</button>
+            <p id="feedback" style="color: red; text-align: center;"></p>
+        </div>
+        <div class="form-group">
+            <input type="text" id="searchTask" placeholder="Search Task by Name">
+            <select id="filterStatus">
+                <option value="all">All</option>
+                <option value="Pending">Pending</option>
+                <option value="Completed">Completed</option>
+            </select>
+            <button id="sortByDueDate">Sort by Due Date</button>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Task Name</th>
+                    <th>Description</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="taskList"></tbody>
+        </table>
+    </div>
+    <script src="task.js"></script>
 </body>
 </html>
