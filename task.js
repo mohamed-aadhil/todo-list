@@ -1,3 +1,4 @@
+// Defining Task Class
 class Task {
     constructor(name, description, dueDate) {
         this.name = name;
@@ -7,6 +8,7 @@ class Task {
     }
 }
 
+// Defining TaskManager Class and its functionalities
 class TaskManager {
     constructor() {
         this.taskNameInput = document.getElementById("taskName");
@@ -26,6 +28,7 @@ class TaskManager {
         this.loadTasks();
     }
 
+    // Display Tasks
     loadTasks() {
         this.taskList.innerHTML = "";
         const filter = this.filterStatus.value;
@@ -49,6 +52,7 @@ class TaskManager {
         });
     }
 
+    // Add tasks to the task list
     addTask() {
         const name = this.taskNameInput.value.trim();
         const description = this.taskDescriptionInput.value.trim();
@@ -68,6 +72,7 @@ class TaskManager {
     
     }
 
+    // Edit the tasks in place
     toggleEditTask(index, button) {
         const row = button.closest("tr");
         const cells = row.querySelectorAll("td");
@@ -90,6 +95,7 @@ class TaskManager {
         }
     }
 
+    // change the completed/pending status of the task
     changeStatus(index) {
         this.tasks[index].status = this.tasks[index].status === "Pending" ? "Completed" : "Pending";
         localStorage.setItem("tasks", JSON.stringify(this.tasks));
@@ -97,6 +103,7 @@ class TaskManager {
         this.feedback.textContent = "Task status changed!";
     }
 
+    // delete the task
     deleteTask(index) {
         this.tasks.splice(index, 1);
         localStorage.setItem("tasks", JSON.stringify(this.tasks));
@@ -104,7 +111,7 @@ class TaskManager {
         this.feedback.textContent = "Task deleted successfully!";
     
     }
-
+    // sort the tasks by due date
     sortByDueDate() {
         this.tasks.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
         localStorage.setItem("tasks", JSON.stringify(this.tasks));
@@ -113,4 +120,5 @@ class TaskManager {
     }
 }
 
+// create an instance of the TaskManager Class
 const taskManager = new TaskManager();
